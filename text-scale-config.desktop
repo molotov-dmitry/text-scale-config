@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=User configuration
+Comment=Tool for detecting and setting text scaling factor
+Icon=user 
+Exec=/usr/local/bin/text-scale-config
+Terminal=true
+Type=Application
+AutostartCondition=unless-exists text-scale-config/setup-done
+X-KDE-autostart-condition=text-scale-config/setup-done::autostart:true
