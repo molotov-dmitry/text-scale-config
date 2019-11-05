@@ -2,7 +2,9 @@
 
 set -e
 
-function showmessage()
+#### Functions =================================================================
+
+showmessage()
 {
     local message="$1"
 
@@ -15,7 +17,7 @@ function showmessage()
     fi
 }
 
-function showquestion()
+showquestion()
 {
     local message="$1"
 
@@ -45,7 +47,7 @@ function showquestion()
     fi
 }
 
-function selectvalue()
+selectvalue()
 {
     local title="$1"
     local prompt="$2"
@@ -84,7 +86,7 @@ function selectvalue()
     echo "$result"
 }
 
-function disableautostart()
+disableautostart()
 {
     showmessage "Configuration completed. You can re-configure text scaling factor by running 'text-scale-config' command"
 
