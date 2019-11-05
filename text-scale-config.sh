@@ -45,6 +45,45 @@ function showquestion()
     fi
 }
 
+function selectvalue()
+{
+    local title="$1"
+    local prompt="$2"
+    
+    shift
+    shift
+
+    local result=''
+
+    if tty -s
+    then
+        result=''
+        
+        echo "${prompt}" >&2
+        select result in "${options[@]}"
+        do
+            if [[ -z "${REPLY}" ]] || [[ ${REPLY} -gt 0 && ${REPLY} -le $# ]]
+            then
+                break
+            else
+                
+                continue
+            fi
+        done
+    else
+        while true
+        do
+            result=$(zenity --title="$title" --text="$prompt" --list --column="Options" "${options[@]}") || break
+            if [[ -n "$result" ]]
+            then
+                break
+            fi
+        done
+    fi
+    
+    echo "$result"
+}
+
 function disableautostart()
 {
     showmessage "Configuration completed. You can re-configure text scaling factor by running 'text-scale-config' command"
@@ -97,44 +136,15 @@ then
     options+=("${Yscaleshort}")
 fi
 
-title='Text scaling factor'
-prompt='Please select text scaling factor:'
-
 while true
 do
-    
-    if tty -s
-    then
-        unset newscale
-        
-        echo "${prompt}"
-        select newscale in "${options[@]}"
-        do
-            if [[ -z "${REPLY}" ]] || [[ ${REPLY} -gt 0 && ${REPLY} -le ${#options} ]]
-            then
-                break
-            else
-                continue
-            fi
-        done
-    else
-        while true
-        do
-            unset newscale
-            
-            newscale=$(zenity --title="$title" --text="$prompt" --list --column="Options" "${options[@]}") || break
-            if [[ -n "${newscale}" ]]
-            then
-                break
-            fi
-        done
-    fi
+    newscale="$(selectvalue 'Text scaling factor' 'Please select text scaling factor:' "${options[@]}")"
     
     if [[ -n "${newscale}" ]]
     then
         oldscale="$(gsettings get org.gnome.desktop.interface text-scaling-factor)"
         
-        gsettings set org.gnome.desktop.interface text-scaling-factor ${newscale}
+        echo gsettings set org.gnome.desktop.interface text-scaling-factor ${newscale}
         
         if showquestion "Save these settings?" "save" "try another"
         then
@@ -142,9 +152,9 @@ do
         else
             if [[ -n "${oldscale}" ]]
             then
-                gsettings set org.gnome.desktop.interface text-scaling-factor ${oldscale}
+                echo gsettings set org.gnome.desktop.interface text-scaling-factor ${oldscale}
             else
-                gsettings reset org.gnome.desktop.interface text-scaling-factor
+                echo gsettings reset org.gnome.desktop.interface text-scaling-factor
             fi
             
             continue
