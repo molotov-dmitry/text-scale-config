@@ -62,7 +62,7 @@ selectvalue()
         result=''
         
         echo "${prompt}" >&2
-        select result in "${options[@]}"
+        select result in "$@"
         do
             if [[ -z "${REPLY}" ]] || [[ ${REPLY} -gt 0 && ${REPLY} -le $# ]]
             then
@@ -75,7 +75,7 @@ selectvalue()
     else
         while true
         do
-            result=$(zenity --title="$title" --text="$prompt" --list --column="Options" "${options[@]}") || break
+            result=$(zenity --title="$title" --text="$prompt" --list --column="Options" "$@") || break
             if [[ -n "$result" ]]
             then
                 break
