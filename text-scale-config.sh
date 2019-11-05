@@ -154,25 +154,51 @@ readarray -t scales < <(for a in "${options[@]}"; do echo "$a"; done | sort -g |
 
 #### Select and apply scale ====================================================
 
+readonly schemagnome="org.gnome.desktop.interface text-scaling-factor"
+readonly schemacinnamon="org.cinnamon.desktop.interface text-scaling-factor"
+
 while true
 do
     newscale="$(selectvalue 'Text scaling factor' 'Please select text scaling factor:' "${scales[@]}")"
     
     if [[ -n "${newscale}" ]]
     then
-        oldscale="$(gsettings get org.gnome.desktop.interface text-scaling-factor)"
         
-        gsettings set org.gnome.desktop.interface text-scaling-factor ${newscale}
+        if gsettings writable $schemagnome 1>/dev/null 2>/dev/null
+        then
+            oldscalegnome="$(gsettings get $schemagnome)"
+            gsettings set $schemagnome ${newscale}
+        fi
+        
+        if gsettings writable $schemacinnamon 1>/dev/null 2>/dev/null
+        then
+            oldscalecinnamon="$(gsettings get $schemacinnamon)"
+            gsettings set $schemacinnamon ${newscale}
+        fi
         
         if showquestion "Save these settings?" "save" "try another"
         then
             break
         else
-            if [[ -n "${oldscale}" ]]
+            
+            if gsettings writable $schemagnome 1>/dev/null 2>/dev/null
             then
-                gsettings set org.gnome.desktop.interface text-scaling-factor ${oldscale}
-            else
-                gsettings reset org.gnome.desktop.interface text-scaling-factor
+                if [[ -n "${oldscalegnome}" ]]
+                then
+                    gsettings set $schemagnome ${oldscalegnome}
+                else
+                    gsettings reset $schemagnome
+                fi
+            fi
+            
+            if gsettings writable $schemacinnamon 1>/dev/null 2>/dev/null
+            then
+                if [[ -n "${oldscalecinnamon}" ]]
+                then
+                    gsettings set $schemacinnamon ${oldscalecinnamon}
+                else
+                    gsettings reset $schemacinnamon
+                fi
             fi
             
             continue
