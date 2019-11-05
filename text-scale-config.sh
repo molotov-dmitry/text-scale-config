@@ -146,7 +146,7 @@ do
     then
         oldscale="$(gsettings get org.gnome.desktop.interface text-scaling-factor)"
         
-        echo gsettings set org.gnome.desktop.interface text-scaling-factor ${newscale}
+        gsettings set org.gnome.desktop.interface text-scaling-factor ${newscale}
         
         if showquestion "Save these settings?" "save" "try another"
         then
@@ -154,9 +154,9 @@ do
         else
             if [[ -n "${oldscale}" ]]
             then
-                echo gsettings set org.gnome.desktop.interface text-scaling-factor ${oldscale}
+                gsettings set org.gnome.desktop.interface text-scaling-factor ${oldscale}
             else
-                echo gsettings reset org.gnome.desktop.interface text-scaling-factor
+                gsettings reset org.gnome.desktop.interface text-scaling-factor
             fi
             
             continue
