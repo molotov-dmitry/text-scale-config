@@ -197,7 +197,7 @@ do
             dconf write $schemaepiphany ${newscale}
         fi
         
-        if [[ -f "$filelibreoffice" ]] && ispkginstalled xmlstarlet && ispkginstalled bc
+        if [[ -f "$filelibreoffice" ]]
         then
             if [[ $(echo "$newscale > 1.26" | bc -l) -eq 0 ]]
             then
@@ -245,7 +245,7 @@ do
                 fi
             fi
             
-            if [[ -f "$filelibreoffice" ]] && ispkginstalled xmlstarlet
+            if [[ -f "$filelibreoffice" ]]
             then
                 if [[ -n "${oldiconlibreoffice}" ]]
                 then
