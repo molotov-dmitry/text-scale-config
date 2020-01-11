@@ -122,6 +122,11 @@ roundscale()
     LC_NUMERIC=C printf "%.1f" "$1" | sed '/\./ s/\.\{0,1\}0\{1,\}$//'
 }
 
+roundfloat()
+{
+    LC_NUMERIC=C printf "%.0f" "$1" | sed '/\./ s/\.\{0,1\}0\{1,\}$//'
+}
+
 function ispkginstalled()
 {
     app="$1"
@@ -168,6 +173,7 @@ readarray -t scales < <(for a in "${options[@]}"; do echo "$a"; done | sort -g |
 
 readonly schemagnome="org.gnome.desktop.interface text-scaling-factor"
 readonly schemacinnamon="org.cinnamon.desktop.interface text-scaling-factor"
+readonly schemadashpanel="org.gnome.shell.extensions.dash-to-dock dash-max-icon-size"
 readonly schemaepiphany="/org/gnome/epiphany/web/default-zoom-level"
 readonly schemalibreoffice="/oor:items/item[@oor:path='/org.openoffice.Office.Common/Misc']/prop[@oor:name='SymbolStyle']/value"
 readonly filelibreoffice="${HOME}/.config/libreoffice/4/user/registrymodifications.xcu"
@@ -189,6 +195,13 @@ do
         then
             oldscalecinnamon="$(gsettings get $schemacinnamon)"
             gsettings set $schemacinnamon ${newscale}
+        fi
+        
+        if gsettings writable $schemadashpanel 1>/dev/null 2>/dev/null
+        then
+            iconsize="$(roundfloat "$(echo "48 * ${newscale}" | bc -l)")"
+            oldsizedashpanel="$(gsettings get $schemadashpanel)"
+            gsettings set $schemadashpanel ${iconsize}
         fi
         
         if ispkginstalled epiphany-browser && ispkginstalled dconf-cli
@@ -232,6 +245,16 @@ do
                     gsettings set $schemacinnamon ${oldscalecinnamon}
                 else
                     gsettings reset $schemacinnamon
+                fi
+            fi
+            
+            if gsettings writable $schemadashpanel 1>/dev/null 2>/dev/null
+            then
+                if [[ -n "${oldsizedashpanel}" ]]
+                then
+                    gsettings set $schemadashpanel ${oldsizedashpanel}
+                else
+                    gsettings reset $schemadashpanel
                 fi
             fi
             
