@@ -122,6 +122,18 @@ roundscale()
     LC_NUMERIC=C printf "%.1f" "$1" | sed '/\./ s/\.\{0,1\}0\{1,\}$//'
 }
 
+function ispkginstalled()
+{
+    app="$1"
+
+    if dpkg -s "${app}" >/dev/null 2>&1
+    then
+        return 0
+    else
+        return 1
+    fi
+}
+
 #### Globals ===================================================================
 
 unset options
@@ -156,6 +168,7 @@ readarray -t scales < <(for a in "${options[@]}"; do echo "$a"; done | sort -g |
 
 readonly schemagnome="org.gnome.desktop.interface text-scaling-factor"
 readonly schemacinnamon="org.cinnamon.desktop.interface text-scaling-factor"
+readonly schemaepiphany="/org/gnome/epiphany/web/default-zoom-level"
 
 while true
 do
@@ -174,6 +187,12 @@ do
         then
             oldscalecinnamon="$(gsettings get $schemacinnamon)"
             gsettings set $schemacinnamon ${newscale}
+        fi
+        
+        if ispkginstalled epiphany-browser && ispkginstalled dconf-cli
+        then
+            oldscaleepiphany="$(dconf read $schemaepiphany)"
+            dconf write $schemaepiphany ${newscale}
         fi
         
         if showquestion "Save these settings?" "save" "try another"
@@ -198,6 +217,16 @@ do
                     gsettings set $schemacinnamon ${oldscalecinnamon}
                 else
                     gsettings reset $schemacinnamon
+                fi
+            fi
+            
+            if ispkginstalled epiphany-browser && ispkginstalled dconf-cli
+            then
+                if [[ -n "${oldscaleepiphany}" ]]
+                then
+                    dconf write $schemaepiphany ${oldscaleepiphany}
+                else
+                    dconf reset $schemaepiphany
                 fi
             fi
             
