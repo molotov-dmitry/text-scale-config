@@ -169,6 +169,8 @@ readarray -t scales < <(for a in "${options[@]}"; do echo "$a"; done | sort -g |
 readonly schemagnome="org.gnome.desktop.interface text-scaling-factor"
 readonly schemacinnamon="org.cinnamon.desktop.interface text-scaling-factor"
 readonly schemaepiphany="/org/gnome/epiphany/web/default-zoom-level"
+readonly schemalibreoffice="/oor:items/item[@oor:path='/org.openoffice.Office.Common/Misc']/prop[@oor:name='SymbolStyle']/value"
+readonly filelibreoffice="${HOME}/.config/libreoffice/4/user/registrymodifications.xcu"
 
 while true
 do
@@ -193,6 +195,19 @@ do
         then
             oldscaleepiphany="$(dconf read $schemaepiphany)"
             dconf write $schemaepiphany ${newscale}
+        fi
+        
+        if [[ -f "$filelibreoffice" ]] && ispkginstalled xmlstarlet && ispkginstalled bc
+        then
+            if [[ $(echo "$newscale > 1.26" | bc -l) -eq 0 ]]
+            then
+                loicontheme=breeze
+            else
+                loicontheme=breeze_svg
+            fi
+        
+            oldiconlibreoffice="$(xmlstarlet select -t -v "$schemalibreoffice" "$filelibreoffice" | head -n1)"
+            xmlstarlet edit --inplace --update "$schemalibreoffice" --value "$loicontheme" "$filelibreoffice"
         fi
         
         if showquestion "Save these settings?" "save" "try another"
@@ -227,6 +242,16 @@ do
                     dconf write $schemaepiphany ${oldscaleepiphany}
                 else
                     dconf reset $schemaepiphany
+                fi
+            fi
+            
+            if [[ -f "$filelibreoffice" ]] && ispkginstalled xmlstarlet
+            then
+                if [[ -n "${oldiconlibreoffice}" ]]
+                then
+                    xmlstarlet edit --inplace --update "$schemalibreoffice" --value "$oldiconlibreoffice" "$filelibreoffice"
+                else
+                    xmlstarlet edit --inplace --delete "$schemalibreoffice" "$filelibreoffice"
                 fi
             fi
             
