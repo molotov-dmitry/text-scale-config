@@ -1,6 +1,6 @@
 [Desktop Entry]
 Version=1.0
-Name=User configuration
+Name=Text scale config
 Comment=Tool for detecting and setting text scaling factor
 Icon=user 
 Exec=/usr/local/bin/text-scale-config
