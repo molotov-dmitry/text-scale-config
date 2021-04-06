@@ -177,6 +177,7 @@ readonly schemadashpanel="org.gnome.shell.extensions.dash-to-dock dash-max-icon-
 readonly schemaepiphany="/org/gnome/epiphany/web/default-zoom-level"
 readonly schemalibreoffice="/oor:items/item[@oor:path='/org.openoffice.Office.Common/Misc']/prop[@oor:name='SymbolStyle']/value"
 readonly filelibreoffice="${HOME}/.config/libreoffice/4/user/registrymodifications.xcu"
+readonly schemamarker="com.github.fabiocolacio.marker.preferences.preview preview-zoom-level"
 
 while true
 do
@@ -221,6 +222,12 @@ do
         
             oldiconlibreoffice="$(xmlstarlet select -t -v "$schemalibreoffice" "$filelibreoffice" | head -n1)"
             xmlstarlet edit --inplace --update "$schemalibreoffice" --value "$loicontheme" "$filelibreoffice"
+        fi
+        
+        if ispkginstalled marker
+        then
+            oldscalemarker="$(gsettings get $schemamarker)"
+            gsettings set $schemamarker ${newscale}
         fi
         
         if showquestion "Save these settings?" "save" "try another"
@@ -275,6 +282,16 @@ do
                     xmlstarlet edit --inplace --update "$schemalibreoffice" --value "$oldiconlibreoffice" "$filelibreoffice"
                 else
                     xmlstarlet edit --inplace --delete "$schemalibreoffice" "$filelibreoffice"
+                fi
+            fi
+            
+            if gsettings writable $schemamarker 1>/dev/null 2>/dev/null
+            then
+                if [[ -n "${oldscalemarker}" ]]
+                then
+                    gsettings set $schemamarker ${oldscalemarker}
+                else
+                    gsettings reset $schemamarker
                 fi
             fi
             
